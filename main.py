@@ -1,7 +1,12 @@
 import os
+
+from dotenv import load_dotenv
+print(f"load_dotenv() {load_dotenv()}")
+
 from fastapi import FastAPI, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 import openai
+
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 

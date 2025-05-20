@@ -1,8 +1,9 @@
+import os
 from fastapi import FastAPI, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 import openai
 
-openai.api_key = "TU_API_KEY_AQUI"
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 app = FastAPI()
 

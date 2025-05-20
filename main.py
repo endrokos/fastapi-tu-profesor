@@ -43,4 +43,8 @@ async def resolver(imagen: UploadFile, pregunta: str = Form(...)):
         ]
     )
 
-    return {"respuesta": response.choices[0].message.content}
+    respuesta = response.choices[0].message.content
+
+    print(f"La respuesta a tu pregunta es: {respuesta}")
+
+    return {"respuesta": respuesta}

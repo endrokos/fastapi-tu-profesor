@@ -1,10 +1,14 @@
 import os
 import base64
+from typing import List, Dict, Union, Optional
 
 from dotenv import load_dotenv
+
+from config import MODEL_BASIC, MODEL_FOR_IMAGES_CALLS
+
 load_dotenv()
 
-from fastapi import FastAPI, UploadFile, Form
+from fastapi import FastAPI, UploadFile, Form, File
 from fastapi.middleware.cors import CORSMiddleware
 import openai
 
@@ -23,24 +27,28 @@ app.add_middleware(
 
 
 @app.post("/resolver")
-async def resolver(imagen: UploadFile, pregunta: str = Form(...)):
-    contenido = await imagen.read()
+async def resolver(
+    imagen: Optional[UploadFile] = File(None), pregunta: Optional[str] = Form(None)
+):
 
-    # Codificamos la imagen a base64
-    base64_image = f"data:{imagen.content_type};base64,{base64.b64encode(contenido).decode()}"
+    print(f"pregunta: {pregunta}")
+    print(f"imagen: {imagen}")
 
-    # Enviamos imagen + texto como entrada multimodal
+    if pregunta is None:
+        return {"respuesta": "Debes añadir una pregunta"}
+
+    model_id = MODEL_BASIC
+    message = defined_the_message_for_pregunta(pregunta=pregunta)
+    if imagen is not None and imagen.filename:
+        base64_image = await process_image_content(imagen)
+        message["content"].append(
+            {"type": "image_url", "image_url": {"url": base64_image}}
+        )
+        model_id = MODEL_FOR_IMAGES_CALLS
+
     response = openai.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": pregunta},
-                    {"type": "image_url", "image_url": {"url": base64_image}}
-                ]
-            }
-        ]
+        model=model_id,
+        messages=[message],
     )
 
     respuesta = response.choices[0].message.content
@@ -48,3 +56,15 @@ async def resolver(imagen: UploadFile, pregunta: str = Form(...)):
     print(f"La respuesta a tu pregunta es: {respuesta}")
 
     return {"respuesta": respuesta}
+
+
+async def process_image_content(imagen):
+    contenido = await imagen.read()
+    base64_image = (
+        f"data:{imagen.content_type};base64,{base64.b64encode(contenido).decode()}"
+    )
+    return base64_image
+
+
+def defined_the_message_for_pregunta(pregunta: str) -> Dict[str, Union[str, list]]:
+    return {"role": "user", "content": [{"type": "text", "text": pregunta}]}

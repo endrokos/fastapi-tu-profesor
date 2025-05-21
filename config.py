@@ -1,0 +1,2 @@
+MODEL_BASIC = "gpt-4o-mini"
+MODEL_FOR_IMAGES_CALLS = "gpt-4o"

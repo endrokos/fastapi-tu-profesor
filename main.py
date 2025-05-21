@@ -1,5 +1,6 @@
 import os
 import base64
+import logging
 from typing import List, Dict, Union, Optional
 
 from dotenv import load_dotenv
@@ -25,14 +26,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Configurar el logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 @app.post("/resolver")
 async def resolver(
     imagen: Optional[UploadFile] = File(None), pregunta: Optional[str] = Form(None)
 ):
 
-    print(f"pregunta: {pregunta}")
-    print(f"imagen: {imagen}")
+    logger.info(f"📥 Pregunta recibida: {pregunta}")
+    logger.info(f"📥 Imagen recibida: {imagen.filename if imagen else 'Ninguna'}")
 
     if pregunta is None:
         return {"respuesta": "Debes añadir una pregunta"}

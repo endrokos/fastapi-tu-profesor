@@ -4,7 +4,7 @@ import logging
 from typing import List, Dict, Union, Optional
 
 from dotenv import load_dotenv
-from config import MODEL_BASIC, MODEL_FOR_IMAGES_CALLS
+from config import MODEL_BASIC, MODEL_FOR_IMAGES_CALLS, PROMPT
 
 load_dotenv()
 
@@ -31,15 +31,17 @@ app.add_middleware(
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 @app.post("/resolver")
 async def resolver(
-    imagen: Optional[UploadFile] = File(None),
-    pregunta: Optional[str] = Form(None)
+    imagen: Optional[UploadFile] = File(None), pregunta: Optional[str] = Form(None)
 ):
     logger.info("🔄 Endpoint /resolver invocado")
 
     logger.info(f"📥 Pregunta recibida: {pregunta}")
-    logger.info(f"📥 Imagen recibida: {imagen.filename if imagen and imagen.filename else 'Ninguna'}")
+    logger.info(
+        f"📥 Imagen recibida: {imagen.filename if imagen and imagen.filename else 'Ninguna'}"
+    )
 
     imagen_valida = imagen is not None and imagen.filename
 
@@ -48,15 +50,15 @@ async def resolver(
         return {"respuesta": "Debes añadir al menos una imagen o una pregunta."}
 
     model_id = MODEL_BASIC
-    message = defined_the_message_for_pregunta(pregunta=pregunta or "")
+    prompt_total = PROMPT.replace("pregunta_estudiante", pregunta)
+    message = defined_the_message_for_pregunta(pregunta=prompt_total or "")
 
     if imagen_valida:
         logger.info("🖼️ Procesando imagen para convertirla en base64...")
         base64_image = await process_image_content(imagen)
-        message["content"].append({
-            "type": "image_url",
-            "image_url": {"url": base64_image}
-        })
+        message["content"].append(
+            {"type": "image_url", "image_url": {"url": base64_image}}
+        )
         model_id = MODEL_FOR_IMAGES_CALLS
         logger.info("✅ Imagen procesada y añadida al mensaje.")
 
@@ -71,7 +73,9 @@ async def resolver(
         return {"respuesta": respuesta}
     except Exception as e:
         logger.error(f"❌ Error al llamar al modelo de OpenAI: {e}")
-        return {"respuesta": "Ocurrió un error al procesar tu solicitud. Disculpe las molestias."}
+        return {
+            "respuesta": "Ocurrió un error al procesar tu solicitud. Disculpe las molestias."
+        }
 
 
 async def process_image_content(imagen: UploadFile) -> str:

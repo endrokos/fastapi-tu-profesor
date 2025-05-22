@@ -31,4 +31,6 @@ Tono: Claro, didáctico y accesible.
 Esta es la pregunta que ha realizado el estudiante:
 
 pregunta_estudiante
+
+IMPORTANTE: Dame el formato de la respuesta en HTML y las formulas formato Latex
 """

@@ -31,4 +31,6 @@ pregunta_estudiante
 IMPORTANTE: Dame el formato de las formulas en Latex
 
 Cuando hagas problemas matemáticos, utiliza siempre la Jeraquía de Operaciones
+
+Si ves que la pregunta es un mensaje amistoso o no te piden nada a responder, responde de manera educada y da un dato curioso sobre cualquier disciplina, que pueda ser interesante para un usuario
 """

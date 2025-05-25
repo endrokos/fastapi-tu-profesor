@@ -53,7 +53,7 @@ def get_sheet(sheet_name="Hoja 1"):
 
 @app.post("/registrar")
 def registrar_usuario(usuario: Usuario):
-    sheet = get_sheet("registros")
+    sheet = get_sheet("Registros")
     fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     sheet.append_row([usuario.nombre, usuario.gmail, fecha_actual])
     return {"mensaje": "Usuario registrado correctamente"}
@@ -61,7 +61,7 @@ def registrar_usuario(usuario: Usuario):
 
 @app.post("/feedback")
 def guardar_sugerencia(data: Sugerencia):
-    sheet = get_sheet("sugerencias")
+    sheet = get_sheet("Sugerencias")
     fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     sheet.append_row([data.gmail, data.sugerencia, fecha_actual])
     return {"mensaje": "Sugerencia guardada correctamente"}

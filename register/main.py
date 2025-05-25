@@ -5,12 +5,24 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime  # ← NUEVO
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+
+origins = ["http://localhost:3000", "https://endrokosai.com"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # ← origenes específicos
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 class Usuario(BaseModel):
     nombre: str

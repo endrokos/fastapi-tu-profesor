@@ -17,9 +17,11 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 # Crear app de FastAPI
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
+origins = ["http://localhost:3000", "https://endrokosai.com"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # cámbialo por tu dominio si quieres seguridad
+    allow_origins=origins,  # ← origenes específicos
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

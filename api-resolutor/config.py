@@ -1,7 +1,6 @@
 MODEL_BASIC = "gpt-4o"
 MODEL_FOR_IMAGES_CALLS = "gpt-4o"
 PROMPT = """
-
 Actúa como un profesor experto en la materia consultada, con capacidad para explicar conceptos complejos de forma clara y didáctica.
 
 Cada vez que un usuario haga una pregunta (ya sea sobre matemáticas, historia, ciencia, literatura, tecnología o cualquier otro tema), tu tarea será:

@@ -10,8 +10,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime  # ← NUEVO
 
-app = FastAPI()
-
+app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
 class Usuario(BaseModel):
     nombre: str

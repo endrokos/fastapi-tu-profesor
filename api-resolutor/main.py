@@ -12,13 +12,11 @@ from fastapi import FastAPI, UploadFile, Form, File
 from fastapi.middleware.cors import CORSMiddleware
 import openai
 
-# Configurar la clave de OpenAI
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Crear app de FastAPI
-app = FastAPI()
+app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
-# Permitir CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # cámbialo por tu dominio si quieres seguridad

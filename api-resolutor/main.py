@@ -8,33 +8,60 @@ from config import MODEL_BASIC, MODEL_FOR_IMAGES_CALLS, PROMPT
 
 load_dotenv()
 
-from fastapi import FastAPI, UploadFile, Form, File
+from fastapi import FastAPI, UploadFile, Form, File, Request
 from fastapi.middleware.cors import CORSMiddleware
 import openai
+
+# IMPORTACIONES NUEVAS PARA RATE LIMITING
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from fastapi.responses import JSONResponse
+
+# Limiter por IP del cliente
+limiter = Limiter(key_func=get_remote_address)
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Crear app de FastAPI
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+app.state.limiter = limiter
 
+
+# Manejador de errores por rate limit
+@app.exception_handler(RateLimitExceeded)
+def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={
+            "respuesta": "Has hecho demasiadas peticiones. Intenta de nuevo más tarde."
+        },
+    )
+
+
+# CORS
 origins = ["http://localhost:3000", "https://endrokosai.com"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # ← origenes específicos
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Configurar logger
+# Logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+# ENDPOINT PROTEGIDO CON LIMITADOR
 @app.post("/resolver")
+@limiter.limit("5/minute")  # ← Ajusta el límite aquí
 async def resolver(
-    imagen: Optional[UploadFile] = File(None), pregunta: Optional[str] = Form(None)
+    request: Request,  # ← Necesario para slowapi
+    imagen: Optional[UploadFile] = File(None),
+    pregunta: Optional[str] = Form(None),
 ):
     logger.info("🔄 Endpoint /resolver invocado")
 

@@ -11,6 +11,6 @@ services:
     name: registro-usuarios
     env: python
     plan: free
-    rootDir: registro
+    rootDir: register
     buildCommand: ""
     startCommand: uvicorn main:app --host=0.0.0.0 --port=10000

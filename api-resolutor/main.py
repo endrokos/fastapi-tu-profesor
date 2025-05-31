@@ -2,7 +2,7 @@ import os
 import base64
 import logging
 from typing import List, Dict, Union, Optional
-
+from datetime import datetime
 from dotenv import load_dotenv
 from config import MODEL_BASIC, MODEL_FOR_IMAGES_CALLS, PROMPT
 
@@ -54,6 +54,13 @@ app.add_middleware(
 # Logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+@app.get("/ping")
+@limiter.limit("5/minute")
+def ping():
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"Llamada recibida a las {now}")
+    return {"message": f"Ping recibido a las {now}"}
 
 
 # ENDPOINT PROTEGIDO CON LIMITADOR

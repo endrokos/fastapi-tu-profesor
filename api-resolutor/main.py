@@ -57,7 +57,7 @@ logger = logging.getLogger(__name__)
 
 @app.get("/ping")
 @limiter.limit("5/minute")
-def ping():
+def ping(request: Request):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"Llamada recibida a las {now}")
     return {"message": f"Ping recibido a las {now}"}

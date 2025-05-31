@@ -1,0 +1,15 @@
+name: Keep API Awake
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # Cada 15 minutos
+  workflow_dispatch:        # Permite ejecutarlo manualmente también
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Curl to API
+      run: |
+        curl -s https://fastapi-tu-profesor.onrender.com/ping || echo "API down"

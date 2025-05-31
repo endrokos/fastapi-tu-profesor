@@ -9,6 +9,7 @@ from config import MODEL_BASIC, MODEL_FOR_IMAGES_CALLS, PROMPT
 load_dotenv()
 
 from fastapi import FastAPI, UploadFile, Form, File, Request
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 import openai
 
@@ -59,7 +60,7 @@ logger = logging.getLogger(__name__)
 @app.post("/resolver")
 @limiter.limit("5/minute")  # ← Ajusta el límite aquí
 async def resolver(
-    request: Request,  # ← Necesario para slowapi
+    request: Request,
     imagen: Optional[UploadFile] = File(None),
     pregunta: Optional[str] = Form(None),
 ):
@@ -89,20 +90,24 @@ async def resolver(
         model_id = MODEL_FOR_IMAGES_CALLS
         logger.info("✅ Imagen procesada y añadida al mensaje.")
 
-    logger.info(f"🧠 Enviando mensaje al modelo: {model_id}")
-    try:
-        response = openai.chat.completions.create(
-            model=model_id,
-            messages=[message],
-        )
-        respuesta = response.choices[0].message.content
-        logger.info(f"🤖 Respuesta del modelo: {respuesta}")
-        return {"respuesta": respuesta}
-    except Exception as e:
-        logger.error(f"❌ Error al llamar al modelo de OpenAI: {e}")
-        return {
-            "respuesta": "Ocurrió un error al procesar tu solicitud. Disculpe las molestias."
-        }
+    logger.info(f"🧠 Enviando mensaje al modelo: {model_id} (modo streaming)")
+
+    async def stream_response():
+        try:
+            stream = openai.chat.completions.create(
+                model=model_id,
+                messages=[message],
+                stream=True,
+            )
+            for chunk in stream:
+                content = chunk.choices[0].delta.content
+                if content:
+                    yield content
+        except Exception as e:
+            logger.error(f"❌ Error al hacer streaming del modelo: {e}")
+            yield "\n[Error al generar la respuesta]"
+
+    return StreamingResponse(stream_response(), media_type="text/plain")
 
 
 async def process_image_content(imagen: UploadFile) -> str:
